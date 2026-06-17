@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ResourceBooking.Api/ResourceBooking.Api.csproj" />
+  <Project Path="ResourceBooking.Blazor/ResourceBooking.Blazor.csproj" />
+  <Project Path="ResourceBooking.Core/ResourceBooking.Core.csproj" />
+  <Project Path="ResourceBooking.Tests/ResourceBooking.Tests.csproj" />
+</Solution>

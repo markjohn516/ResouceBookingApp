@@ -1,0 +1,11 @@
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/bin/Debug/net10.0/ResourceBooking.Core.deps.json
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/bin/Debug/net10.0/ResourceBooking.Core.dll
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/bin/Debug/net10.0/ResourceBooking.Core.pdb
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/ResourceBooking.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/ResourceBooking.Core.AssemblyInfoInputs.cache
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/ResourceBooking.Core.AssemblyInfo.cs
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/ResourceBooking.Core.csproj.CoreCompileInputs.cache
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/ResourceBooking.Core.dll
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/refint/ResourceBooking.Core.dll
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/ResourceBooking.Core.pdb
+/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/obj/Debug/net10.0/ref/ResourceBooking.Core.dll
