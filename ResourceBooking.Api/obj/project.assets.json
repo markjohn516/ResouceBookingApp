@@ -36,6 +36,16 @@
             "related": ".pdb;.xml"
           }
         }
+      },
+      "ResourceBooking.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "compile": {
+          "bin/placeholder/ResourceBooking.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ResourceBooking.Core.dll": {}
+        }
       }
     }
   },
@@ -75,11 +85,17 @@
         "microsoft.openapi.2.0.0.nupkg.sha512",
         "microsoft.openapi.nuspec"
       ]
+    },
+    "ResourceBooking.Core/1.0.0": {
+      "type": "project",
+      "path": "../ResourceBooking.Core/ResourceBooking.Core.csproj",
+      "msbuildProject": "../ResourceBooking.Core/ResourceBooking.Core.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "Microsoft.AspNetCore.OpenApi >= 10.0.5"
+      "Microsoft.AspNetCore.OpenApi >= 10.0.5",
+      "ResourceBooking.Core >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -106,7 +122,11 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/ResourceBooking.Core.csproj": {
+              "projectPath": "/Users/mapostol/dev/mjasolutions/ResouceBookingApp/ResourceBooking.Core/ResourceBooking.Core.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

@@ -18,4 +18,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ResourceBooking.Api\ResourceBooking.Api.csproj" />
+    <ProjectReference Include="..\ResourceBooking.Core\ResourceBooking.Core.csproj" />
+  </ItemGroup>
+
 </Project>
