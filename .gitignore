@@ -1,0 +1,30 @@
+# Build results
+bin/
+obj/
+
+# Visual Studio cache/options directory
+.vs/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Local user-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files
+.DS_Store
+
+# NuGet lock files
+packages.lock.json
+
+# Build folders
+artifacts/
