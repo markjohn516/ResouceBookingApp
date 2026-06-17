@@ -28,3 +28,11 @@ packages.lock.json
 
 # Build folders
 artifacts/
+/ResourceBooking.Api/bin
+/ResourceBooking.Blazor/bin
+/ResourceBooking.Core/bin
+/ResourceBooking.Tests/bin
+/ResourceBooking.Api/bin
+/ResourceBooking.Blazor/obj
+/ResourceBooking.Core/obj
+/ResourceBooking.Tests/obj
