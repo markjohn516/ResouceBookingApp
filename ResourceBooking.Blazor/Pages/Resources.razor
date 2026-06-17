@@ -1,0 +1,240 @@
+@page "/resources"
+@using ResourceBooking.Core.DTOs
+@using ResourceBooking.Blazor.Services
+@inject IApiClient ApiClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>Resources - Resource Booking</PageTitle>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Available Resources</h1>
+            @if (isLoading)
+            {
+                <div class="alert alert-info">Loading resources...</div>
+            }
+            else if (errorMessage != null)
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+            else if (resources == null || resources.Count == 0)
+            {
+                <div class="alert alert-warning">No active resources available.</div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var resource in resources)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">@resource.Name</h5>
+                                    <p class="card-text">
+                                        <strong>Type:</strong> @resource.Type<br/>
+                                        <strong>Status:</strong> 
+                                        <span class="badge bg-success">Available</span>
+                                    </p>
+                                    <button class="btn btn-primary" @onclick="() => SelectResource(resource)">
+                                        View & Book
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (selectedResource != null)
+    {
+        <div class="modal d-block" style="display:block !important; background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@selectedResource.Name - Bookings & Create New</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Existing Bookings</h6>
+                                @if (existingBookings == null)
+                                {
+                                    <p>Loading bookings...</p>
+                                }
+                                else if (existingBookings.Count == 0)
+                                {
+                                    <p>No current bookings for this resource.</p>
+                                }
+                                else
+                                {
+                                    <div class="list-group">
+                                        @foreach (var booking in existingBookings)
+                                        {
+                                            <div class="list-group-item">
+                                                <strong>@booking.EmployeeName</strong><br/>
+                                                @booking.StartTime.ToString("g") - @booking.EndTime.ToString("g")
+                                                @if (!string.IsNullOrEmpty(booking.Note))
+                                                {
+                                                    <br/><small class="text-muted">@booking.Note</small>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Create New Booking</h6>
+                                <div class="mb-3">
+                                    <label for="employeeId" class="form-label">Employee</label>
+                                    <select id="employeeId" class="form-select" @bind="newBooking.EmployeeId">
+                                        <option value="0">-- Select Employee --</option>
+                                        @if (employees != null)
+                                        {
+                                            @foreach (var emp in employees)
+                                            {
+                                                <option value="@emp.Id">@emp.FullName</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="startTime" class="form-label">Start Time</label>
+                                    <input id="startTime" type="datetime-local" class="form-control" @bind="newBooking.StartTime" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="endTime" class="form-label">End Time</label>
+                                    <input id="endTime" type="datetime-local" class="form-control" @bind="newBooking.EndTime" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="note" class="form-label">Note (Optional)</label>
+                                    <textarea id="note" class="form-control" @bind="newBooking.Note" rows="2"></textarea>
+                                </div>
+                                @if (bookingError != null)
+                                {
+                                    <div class="alert alert-danger">@bookingError</div>
+                                }
+                                <button class="btn btn-success" @onclick="CreateBooking" disabled="@isCreatingBooking">
+                                    @if (isCreatingBooking) { <text>Creating...</text> } else { <text>Create Booking</text> }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ResourceDto>? resources;
+    private List<EmployeeDto>? employees;
+    private ResourceDto? selectedResource;
+    private List<BookingDto>? existingBookings;
+    private bool isLoading = true;
+    private bool isCreatingBooking = false;
+    private string? errorMessage;
+    private string? bookingError;
+
+    private CreateBookingDto newBooking = new() { ResourceId = 0, EmployeeId = 0, StartTime = default, EndTime = default };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadResources();
+            await LoadEmployees();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading data: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadResources()
+    {
+        resources = await ApiClient.GetActiveResourcesAsync();
+    }
+
+    private async Task LoadEmployees()
+    {
+        employees = await ApiClient.GetEmployeesAsync();
+    }
+
+    private async Task SelectResource(ResourceDto resource)
+    {
+        selectedResource = resource;
+        newBooking = new() { ResourceId = resource.Id };
+        existingBookings = await ApiClient.GetResourceBookingsAsync(resource.Id);
+    }
+
+    private void CloseModal()
+    {
+        selectedResource = null;
+        bookingError = null;
+    }
+
+    private async Task CreateBooking()
+    {
+        try
+        {
+            bookingError = null;
+            isCreatingBooking = true;
+
+            // Validate input
+            if (newBooking.EmployeeId <= 0)
+            {
+                bookingError = "Please select an employee.";
+                return;
+            }
+
+            if (newBooking.StartTime == default)
+            {
+                bookingError = "Please select a start time.";
+                return;
+            }
+
+            if (newBooking.EndTime == default)
+            {
+                bookingError = "Please select an end time.";
+                return;
+            }
+
+            // Check for conflicts first
+            var conflictResponse = await ApiClient.CheckConflictAsync(newBooking);
+            if (conflictResponse.IsConflict)
+            {
+                bookingError = conflictResponse.Message;
+                return;
+            }
+
+            // Create the booking
+            await ApiClient.CreateBookingAsync(newBooking);
+            
+            // Refresh the bookings list
+            if (selectedResource != null)
+            {
+                existingBookings = await ApiClient.GetResourceBookingsAsync(selectedResource.Id);
+            }
+
+            // Reset the form
+            newBooking = new() { ResourceId = selectedResource?.Id ?? 0, EmployeeId = 0, StartTime = default, EndTime = default };
+            bookingError = null;
+        }
+        catch (Exception ex)
+        {
+            bookingError = $"Error creating booking: {ex.Message}";
+        }
+        finally
+        {
+            isCreatingBooking = false;
+        }
+    }
+}

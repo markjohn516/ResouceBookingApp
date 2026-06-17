@@ -1,0 +1,385 @@
+@page "/admin"
+@using ResourceBooking.Core.DTOs
+@using ResourceBooking.Blazor.Services
+@inject IApiClient ApiClient
+
+<PageTitle>Administration - Resource Booking</PageTitle>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Administration Panel</h1>
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "resources" ? "active" : "")" @onclick="@(() => SwitchTab("resources"))">
+                        Manage Resources
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(activeTab == "employees" ? "active" : "")" @onclick="@(() => SwitchTab("employees"))">
+                        Manage Employees
+                    </button>
+                </li>
+            </ul>
+
+            @if (activeTab == "resources")
+            {
+                <div class="tab-content">
+                    <h3>Resources</h3>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Add New Resource</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="resourceName" class="form-label">Resource Name</label>
+                                        <input id="resourceName" type="text" class="form-control" @bind="newResource.Name" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="resourceType" class="form-label">Resource Type</label>
+                                        <select id="resourceType" class="form-select" @bind="newResource.Type">
+                                            <option value="">-- Select Type --</option>
+                                            <option value="Room">Meeting Room</option>
+                                            <option value="Vehicle">Vehicle</option>
+                                            <option value="Equipment">Equipment</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label>&nbsp;</label>
+                                        <button class="btn btn-success w-100" @onclick="CreateResource" disabled="@isCreatingResource">
+                                            @if (isCreatingResource) { <text>Adding...</text> } else { <text>Add Resource</text> }
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (resourceError != null)
+                            {
+                                <div class="alert alert-danger">@resourceError</div>
+                            }
+                        </div>
+                    </div>
+
+                    <h5>Existing Resources</h5>
+                    @if (isLoadingResources)
+                    {
+                        <p>Loading resources...</p>
+                    }
+                    else if (allResources == null || allResources.Count == 0)
+                    {
+                        <p>No resources found.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var resource in allResources)
+                                    {
+                                        <tr>
+                                            <td>@resource.Name</td>
+                                            <td>@resource.Type</td>
+                                            <td>
+                                                @if (resource.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (resource.IsActive)
+                                                {
+                                                    <button class="btn btn-sm btn-warning" @onclick="() => DisableResource(resource.Id)">
+                                                        Disable
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-info" @onclick="() => EnableResource(resource.Id)">
+                                                        Enable
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (activeTab == "employees")
+            {
+                <div class="tab-content">
+                    <h3>Employees</h3>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>Add New Employee</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input id="firstName" type="text" class="form-control" @bind="newEmployee.FirstName" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="lastName" class="form-label">Last Name</label>
+                                        <input id="lastName" type="text" class="form-control" @bind="newEmployee.LastName" />
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label>&nbsp;</label>
+                                        <button class="btn btn-success w-100" @onclick="CreateEmployee" disabled="@isCreatingEmployee">
+                                            @if (isCreatingEmployee) { <text>Adding...</text> } else { <text>Add Employee</text> }
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (employeeError != null)
+                            {
+                                <div class="alert alert-danger">@employeeError</div>
+                            }
+                        </div>
+                    </div>
+
+                    <h5>Existing Employees</h5>
+                    @if (isLoadingEmployees)
+                    {
+                        <p>Loading employees...</p>
+                    }
+                    else if (allEmployees == null || allEmployees.Count == 0)
+                    {
+                        <p>No employees found.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Full Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var employee in allEmployees)
+                                    {
+                                        <tr>
+                                            <td>@employee.FirstName</td>
+                                            <td>@employee.LastName</td>
+                                            <td>@employee.FullName</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteEmployee(employee.Id)">
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string activeTab = "resources";
+    private List<ResourceDto>? allResources;
+    private List<EmployeeDto>? allEmployees;
+    private bool isLoadingResources = true;
+    private bool isLoadingEmployees = true;
+    private bool isCreatingResource = false;
+    private bool isCreatingEmployee = false;
+    private string? resourceError;
+    private string? employeeError;
+
+    private CreateResourceDto newResource = new() { Name = "", Type = "" };
+    private CreateEmployeeDto newEmployee = new() { FirstName = "", LastName = "" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadResources();
+        await LoadEmployees();
+    }
+
+    private async Task LoadResources()
+    {
+        try
+        {
+            isLoadingResources = true;
+            allResources = await ApiClient.GetAllResourcesAsync();
+        }
+        catch (Exception ex)
+        {
+            resourceError = $"Error loading resources: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingResources = false;
+        }
+    }
+
+    private async Task LoadEmployees()
+    {
+        try
+        {
+            isLoadingEmployees = true;
+            allEmployees = await ApiClient.GetEmployeesAsync();
+        }
+        catch (Exception ex)
+        {
+            employeeError = $"Error loading employees: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingEmployees = false;
+        }
+    }
+
+    private void SwitchTab(string tab)
+    {
+        activeTab = tab;
+    }
+
+    private async Task CreateResource()
+    {
+        try
+        {
+            resourceError = null;
+            isCreatingResource = true;
+
+            if (string.IsNullOrWhiteSpace(newResource.Name))
+            {
+                resourceError = "Resource name is required.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newResource.Type))
+            {
+                resourceError = "Resource type is required.";
+                return;
+            }
+
+            await ApiClient.CreateResourceAsync(newResource);
+            newResource = new() { Name = "", Type = "" };
+            await LoadResources();
+        }
+        catch (Exception ex)
+        {
+            resourceError = $"Error creating resource: {ex.Message}";
+        }
+        finally
+        {
+            isCreatingResource = false;
+        }
+    }
+
+    private async Task DisableResource(int id)
+    {
+        try
+        {
+            await ApiClient.DisableResourceAsync(id);
+            await LoadResources();
+        }
+        catch (Exception ex)
+        {
+            resourceError = $"Error disabling resource: {ex.Message}";
+        }
+    }
+
+    private async Task EnableResource(int id)
+    {
+        try
+        {
+            await ApiClient.EnableResourceAsync(id);
+            await LoadResources();
+        }
+        catch (Exception ex)
+        {
+            resourceError = $"Error enabling resource: {ex.Message}";
+        }
+    }
+
+    private async Task CreateEmployee()
+    {
+        try
+        {
+            employeeError = null;
+            isCreatingEmployee = true;
+
+            if (string.IsNullOrWhiteSpace(newEmployee.FirstName))
+            {
+                employeeError = "First name is required.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(newEmployee.LastName))
+            {
+                employeeError = "Last name is required.";
+                return;
+            }
+
+            await ApiClient.CreateEmployeeAsync(newEmployee);
+            newEmployee = new() { FirstName = "", LastName = "" };
+            await LoadEmployees();
+        }
+        catch (Exception ex)
+        {
+            employeeError = $"Error creating employee: {ex.Message}";
+        }
+        finally
+        {
+            isCreatingEmployee = false;
+        }
+    }
+
+    private async Task DeleteEmployee(int id)
+    {
+        try
+        {
+            if (await ConfirmAsync("Are you sure you want to delete this employee?"))
+            {
+                await ApiClient.DeleteEmployeeAsync(id);
+                await LoadEmployees();
+            }
+        }
+        catch (Exception ex)
+        {
+            employeeError = $"Error deleting employee: {ex.Message}";
+        }
+    }
+
+    private Task<bool> ConfirmAsync(string message)
+    {
+        return Task.FromResult(true); // In a real app, use a confirmation dialog
+    }
+}
