@@ -244,3 +244,19 @@ Given the time constraint, the following decisions prioritized core functionalit
     - API contract testing
 
 ---
+
+## Development Journey: From Initial Design to Final Implementation
+
+The initial design focused on establishing the core project structure and defining the key application components:
+
+- **ResourceBooking.Core** – Contains domain models, DTOs, and shared business logic used across the solution.
+
+- **ResourceBooking.Api** – Implements the ASP.NET Core Web API, including controllers, services, and repository layers.
+
+- **ResourceBooking.Blazor** – Provides the WebAssembly-based user interface for resource booking and management.
+
+- **ResourceBooking.Tests** – Contains unit tests to validate and maintain the integrity of the core business logic.
+
+During development and troubleshooting, browser developer tools were used to inspect and debug the UI, while backend issues were investigated using breakpoints, logging, and code tracing techniques.
+
+The final design was chosen because it follows a clean, layered architecture that clearly separates responsibilities across components. This approach promotes maintainability, encourages code reuse between the API and frontend, improves scalability, and simplifies testing by isolating business logic from presentation and data access concerns.
